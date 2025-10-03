@@ -171,51 +171,106 @@ mkdir -p /home/pi/labs
 1) Script Python para leer el archivo
 
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
-from pathlib import Path
-import statistics as stats
+## 4. Flujo JSON de Node-RED
 
-RUTA = Path("/home/pi/labs/rgb_log.txt")
-N = 10  # últimos N registros
+> Copia y pega este bloque en *Import > Clipboard* de Node-RED.
 
-def leer_registros(path: Path):
-    if not path.exists():
-        print(f"No existe el archivo: {path}")
-        return []
-    registros = []
-    with path.open("r", encoding="utf-8") as f:
-        for linea in f:
-            linea = linea.strip()
-            if not linea:
-                continue
-            # Formato: ISO;R;G;B
-            try:
-                ts, r, g, b = linea.split(";")
-                r, g, b = int(r), int(g), int(b)
-                registros.append((ts, r, g, b))
-            except Exception as e:
-                print("Línea inválida, se omite:", linea, "| Error:", e)
-    return registros
-
-def main():
-    data = leer_registros(RUTA)
-    if not data:
-        return
-    ultimos = data[-N:]
-    print(f"Últimos {len(ultimos)} registros:")
-    for ts, r, g, b in ultimos:
-        print(f"{ts} -> R={r} G={g} B={b}")
-
-    # Estadísticas simples
-    r_vals = [r for _, r, _, _ in ultimos]
-    g_vals = [g for _, _, g, _ in ultimos]
-    b_vals = [b for _, _, _, b in ultimos]
-    print("\nPromedios últimos registros:")
-    print(f"R̄={stats.mean(r_vals):.1f} | Ḡ={stats.mean(g_vals):.1f} | B̄={stats.mean(b_vals):.1f}")
-
-if __name__ == "__main__":
-    main()
+```json
+[
+  {
+    "id": "tab-rgb-lab",
+    "type": "tab",
+    "label": "LAB - RGB",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "grp-ui",
+    "type": "ui_group",
+    "z": "",
+    "name": "Controles",
+    "tab": "tab-ui",
+    "order": 1,
+    "disp": true,
+    "width": "6",
+    "collapse": false
+  },
+  {
+    "id": "tab-ui",
+    "type": "ui_tab",
+    "z": "",
+    "name": "Laboratorio",
+    "icon": "dashboard",
+    "disabled": false,
+    "hidden": false
+  },
+  {
+    "id": "color-picker",
+    "type": "ui_colour_picker",
+    "z": "tab-rgb-lab",
+    "name": "Color",
+    "label": "Selecciona color",
+    "group": "grp-ui",
+    "format": "hex",
+    "outformat": "string",
+    "showSwatch": true,
+    "showPicker": true,
+    "showValue": true,
+    "showHue": true,
+    "showAlpha": false,
+    "pickerType": "auto",
+    "topic": "ui/color",
+    "x": 170,
+    "y": 120,
+    "wires": [["fn-hex2rgb"]]
+  },
+  {
+    "id": "fn-hex2rgb",
+    "type": "function",
+    "z": "tab-rgb-lab",
+    "name": "HEX → RGB + texto",
+    "func": "// Espera msg.payload como string tipo \"#RRGGBB\"\nlet hex = String(msg.payload || \"\").trim();\nif (!/^#?[0-9a-fA-F]{6}$/.test(hex)) {\n  node.warn(\"Formato HEX inválido: \" + hex);\n  return null;\n}\nif (hex[0] === '#') hex = hex.slice(1);\nconst r = parseInt(hex.slice(0,2), 16);\nconst g = parseInt(hex.slice(2,4), 16);\nconst b = parseInt(hex.slice(4,6), 16);\n\n// Mostramos RGB en UI\nmsg.payload = `${r}, ${g}, ${b}`;\nmsg.rgb = { r, g, b };\n\n// Para archivo: agregamos timestamp y CSV simple\nconst ts = new Date().toISOString();\nmsg.filePayload = `${ts};${r};${g};${b}`;\nreturn [msg];",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 430,
+    "y": 120,
+    "wires": [["ui-text","to-file"]]
+  },
+  {
+    "id": "ui-text",
+    "type": "ui_text",
+    "z": "tab-rgb-lab",
+    "group": "grp-ui",
+    "order": 2,
+    "width": "6",
+    "height": "1",
+    "name": "Valores RGB",
+    "label": "RGB",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "x": 690,
+    "y": 100,
+    "wires": []
+  },
+  {
+    "id": "to-file",
+    "type": "file",
+    "z": "tab-rgb-lab",
+    "name": "Guardar en archivo",
+    "filename": "/home/pi/labs/rgb_log.txt",
+    "appendNewline": true,
+    "createDir": true,
+    "overwriteFile": "false",
+    "encoding": "none",
+    "x": 710,
+    "y": 160,
+    "wires": []
+  }
+]
 
 
 6) Problemas típicos que vimos y cómo los resolvimos

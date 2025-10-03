@@ -162,9 +162,7 @@ Ojo: en el file node define una ruta absoluta válida en tu Pi, por ejemplo: /ho
 ]
 
 
-
-
-6) Problemas típicos que vimos y cómo los resolvimos
+## 6) Problemas típicos que vimos y cómo los resolvimos
 
 “No escribe el archivo”
 

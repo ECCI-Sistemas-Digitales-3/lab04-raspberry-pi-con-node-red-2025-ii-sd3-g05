@@ -61,117 +61,6 @@ file: guarda en un .txt (una línea por registro, con fecha/hora).
 
 Ojo: en el file node define una ruta absoluta válida en tu Pi, por ejemplo: /home/pi/labs/rgb_log.txt.
 
-4) Flujo JSON de Node-RED
-
-[
-  {
-    "id": "tab-rgb-lab",
-    "type": "tab",
-    "label": "LAB - RGB",
-    "disabled": false,
-    "info": ""
-  },
-  {
-    "id": "grp-ui",
-    "type": "ui_group",
-    "z": "",
-    "name": "Controles",
-    "tab": "tab-ui",
-    "order": 1,
-    "disp": true,
-    "width": "6",
-    "collapse": false
-  },
-  {
-    "id": "tab-ui",
-    "type": "ui_tab",
-    "z": "",
-    "name": "Laboratorio",
-    "icon": "dashboard",
-    "disabled": false,
-    "hidden": false
-  },
-  {
-    "id": "color-picker",
-    "type": "ui_colour_picker",
-    "z": "tab-rgb-lab",
-    "name": "Color",
-    "label": "Selecciona color",
-    "group": "grp-ui",
-    "format": "hex",
-    "outformat": "string",
-    "showSwatch": true,
-    "showPicker": true,
-    "showValue": true,
-    "showHue": true,
-    "showAlpha": false,
-    "pickerType": "auto",
-    "topic": "ui/color",
-    "x": 170,
-    "y": 120,
-    "wires": [
-      [
-        "fn-hex2rgb"
-      ]
-    ]
-  },
-  {
-    "id": "fn-hex2rgb",
-    "type": "function",
-    "z": "tab-rgb-lab",
-    "name": "HEX → RGB + texto",
-    "func": "// Espera msg.payload como string tipo \"#RRGGBB\"\nlet hex = String(msg.payload || \"\").trim();\nif (!/^#?[0-9a-fA-F]{6}$/.test(hex)) {\n    node.warn(\"Formato HEX inválido: \" + hex);\n    return null;\n}\nif (hex[0] === '#') hex = hex.slice(1);\nconst r = parseInt(hex.slice(0,2), 16);\nconst g = parseInt(hex.slice(2,4), 16);\nconst b = parseInt(hex.slice(4,6), 16);\n\n// Mostramos RGB en UI\nmsg.payload = `${r}, ${g}, ${b}`;\nmsg.rgb = { r, g, b };\n\n// Para archivo: agregamos timestamp\nconst ts = new Date().toISOString();\nmsg.filePayload = `${ts};${r};${g};${b}`; // CSV sencillo: timestamp;R;G;B\nreturn [msg];",
-    "outputs": 1,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 430,
-    "y": 120,
-    "wires": [
-      [
-        "ui-text",
-        "to-file"
-      ]
-    ]
-  },
-  {
-    "id": "ui-text",
-    "type": "ui_text",
-    "z": "tab-rgb-lab",
-    "group": "grp-ui",
-    "order": 2,
-    "width": "6",
-    "height": "1",
-    "name": "Valores RGB",
-    "label": "RGB",
-    "format": "{{msg.payload}}",
-    "layout": "row-spread",
-    "x": 690,
-    "y": 100,
-    "wires": []
-  },
-  {
-    "id": "to-file",
-    "type": "file",
-    "z": "tab-rgb-lab",
-    "name": "Guardar en archivo",
-    "filename": "/home/pi/labs/rgb_log.txt",
-    "appendNewline": true,
-    "createDir": true,
-    "overwriteFile": "false",
-    "encoding": "none",
-    "x": 710,
-    "y": 160,
-    "wires": []
-  }
-]
-mkdir -p /home/pi/labs
-
-1) Script Python para leer el archivo
-
-#!/usr/bin/env python3
-
 ## 4. Flujo JSON de Node-RED
 
 > Copia y pega este bloque en *Import > Clipboard* de Node-RED.
@@ -271,6 +160,8 @@ mkdir -p /home/pi/labs
     "wires": []
   }
 ]
+
+
 
 
 6) Problemas típicos que vimos y cómo los resolvimos

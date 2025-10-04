@@ -61,7 +61,40 @@ file: guarda en un .txt (una línea por registro, con fecha/hora).
 
 Ojo: en el file node define una ruta absoluta válida en tu Pi, por ejemplo: /home/pi/labs/rgb_log.txt.
 
-## 4. Flujo JSON de Node-RED
+4) Problemas típicos que vimos y cómo los resolvimos
+
+“No escribe el archivo”
+
+La ruta no existe → crea la carpeta (mkdir -p /home/pi/labs).
+
+Permisos → prueba en tu home (/home/pi/...) o ejecuta Node-RED con tu usuario.
+
+“El UI no aparece”
+
+Te falta instalar los nodos dashboard.
+
+Revisa http://<IP>:1880/ui.
+
+Haz Deploy después de cambios.
+
+“El texto del file node se ve raro”
+
+Asegúrate que msg.payload sea texto. En el flujo que te paso guardo en msg.filePayload. Si usas ese campo, cambia el file node a “Use msg.filePayload” (propiedad Property). En el JSON que te di ya guardo msg.payload como texto “R, G, B”; si quieres el CSV con timestamp, cambia el nodo file para usar msg.filePayload.
+
+“¿HEX a RGB en Node-RED?”
+
+Lo hacemos en el function con JS (ver bloque en el JSON).
+## Conclusiones
+
+Aprendimos a manejar Node-RED con nodos de Dashboard y a transformar datos en el function node.
+
+Entendimos la estructura de msg y la importancia de msg.payload.
+
+Probamos la integración con Python leyendo el archivo generado, que sirve para análisis posterior.
+
+Configurar rutas absolutas y permisos fue importante para que el guardado funcione sin errores.
+
+##  Flujo JSON de Node-RED
 
 > Copia y pega este bloque en *Import > Clipboard* de Node-RED.
 
@@ -160,37 +193,3 @@ Ojo: en el file node define una ruta absoluta válida en tu Pi, por ejemplo: /ho
     "wires": []
   }
 ]
-
-
-## 6) Problemas típicos que vimos y cómo los resolvimos
-
-“No escribe el archivo”
-
-La ruta no existe → crea la carpeta (mkdir -p /home/pi/labs).
-
-Permisos → prueba en tu home (/home/pi/...) o ejecuta Node-RED con tu usuario.
-
-“El UI no aparece”
-
-Te falta instalar los nodos dashboard.
-
-Revisa http://<IP>:1880/ui.
-
-Haz Deploy después de cambios.
-
-“El texto del file node se ve raro”
-
-Asegúrate que msg.payload sea texto. En el flujo que te paso guardo en msg.filePayload. Si usas ese campo, cambia el file node a “Use msg.filePayload” (propiedad Property). En el JSON que te di ya guardo msg.payload como texto “R, G, B”; si quieres el CSV con timestamp, cambia el nodo file para usar msg.filePayload.
-
-“¿HEX a RGB en Node-RED?”
-
-Lo hacemos en el function con JS (ver bloque en el JSON).
-## Conclusiones
-
-Aprendimos a manejar Node-RED con nodos de Dashboard y a transformar datos en el function node.
-
-Entendimos la estructura de msg y la importancia de msg.payload.
-
-Probamos la integración con Python leyendo el archivo generado, que sirve para análisis posterior.
-
-Configurar rutas absolutas y permisos fue importante para que el guardado funcione sin errores.

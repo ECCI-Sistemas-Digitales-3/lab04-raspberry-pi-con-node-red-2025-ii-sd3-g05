@@ -94,6 +94,20 @@ Probamos la integración con Python leyendo el archivo generado, que sirve para 
 
 Configurar rutas absolutas y permisos fue importante para que el guardado funcione sin errores.
 
+flowchart LR
+    subgraph UI["Dashboard / UI"]
+      CP["ui_colour_picker<br/>Selecciona color"]
+      TXT["ui_text<br/>Muestra RGB"]
+    end
+
+    FN["function<br/>HEX → RGB + CSV"]
+    FILE["file<br/>/home/pi/labs/rgb_log.txt"]
+
+    CP -- msg.payload = "#RRGGBB" --> FN
+    FN -- msg.payload = "R, G, B" --> TXT
+    FN -- msg.filePayload = "ISO;R;G;B" --> FILE
+
+
 ##  Flujo JSON de Node-RED
 
 > Copia y pega este bloque en *Import > Clipboard* de Node-RED.
